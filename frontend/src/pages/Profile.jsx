@@ -58,7 +58,7 @@ function connectGmail() {
         );
 
     window.location.href =
-        `http://localhost:5000/auth/google?userId=${user.id}`;
+        `https://agent-os-a7sp.onrender.com/auth/google?userId=${user.id}`;
 
 }
 

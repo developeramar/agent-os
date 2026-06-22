@@ -31,7 +31,7 @@ function Home() {
 
                 const res =
                     await fetch(
-                        "http://localhost:5000/api/user/my-account",
+                        "https://agent-os-a7sp.onrender.com/api/user/my-account",
                         {
                             headers: {
                                 authorization:

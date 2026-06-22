@@ -29,7 +29,7 @@ function Register() {
 
                 const res =
                     await fetch(
-                        "http://localhost:5000/api/auth/register",
+                        "https://agent-os-a7sp.onrender.com/api/auth/register",
                         {
                             method: "POST",
                             headers: {

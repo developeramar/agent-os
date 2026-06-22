@@ -78,7 +78,7 @@ function Onboarding() {
                         <button
                             onClick={() =>
                                 window.location.href =
-                                "http://localhost:5000/auth/google"
+                                "https://agent-os-a7sp.onrender.com/auth/google"
                             }
                             style={{
                                 padding:
