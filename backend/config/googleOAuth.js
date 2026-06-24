@@ -10,7 +10,7 @@ const oauth2Client =
         process.env
             .GOOGLE_CLIENT_SECRET,
 
-        "http://localhost:5000/auth/google/callback"
+        "https://agent-os-a7sp.onrender.com/auth/google/callback"
 
     );
 
