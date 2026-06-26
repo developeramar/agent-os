@@ -1,7 +1,32 @@
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import api from "../services/api";
 
 function Pricing() {
+
+
+    const handlePayment = async () => {
+
+    alert("Button Clicked");
+
+    try {
+
+        const { data } = await api.post(
+            "/payment/create-order",
+            {
+                amount: 199
+            }
+        );
+
+        console.log(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
+
+};
 
     const planCard = {
         flex: "1",
@@ -277,6 +302,7 @@ function Pricing() {
                             </div>
 
                             <button
+                            onClick={handlePayment}
                                 style={{
                                     marginTop: "30px",
                                     width: "100%",
@@ -391,5 +417,7 @@ function Pricing() {
     );
 
 }
+
+
 
 export default Pricing;
