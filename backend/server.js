@@ -51,6 +51,7 @@ const gmailReadRoutes = require("./routes/gmailReadRoutes");
 const emailIntelligenceRoutes = require("./routes/emailIntelligenceRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 
@@ -96,6 +97,7 @@ app.use("/api/user",gmailReadRoutes);
 app.use("/api/user",emailIntelligenceRoutes);
 app.use("/api/auth",authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/payment", paymentRoutes);
 
 
 
