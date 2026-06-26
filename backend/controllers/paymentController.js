@@ -1,5 +1,6 @@
 const razorpay = require("../config/razorpay");
-
+const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 exports.createOrder = async (req, res) => {
     try {
 
@@ -45,7 +46,42 @@ exports.createOrder = async (req, res) => {
 const crypto = require("crypto");
 
 exports.verifyPayment = async (req, res) => {
+
+
+
+    const token = req.headers.authorization;
+
+    if (!token) {
+
+        return res.status(401).json({
+            success: false,
+            message: "Unauthorized"
+        });
+
+    }
+
+    const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET
+    );
+
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+
+        return res.status(404).json({
+            success: false,
+            message: "User not found"
+        });
+
+    }
+
+
+
     try {
+
+        console.log("✅ VERIFY API HIT");
+        console.log(req.body);
 
         const {
             razorpay_order_id,
@@ -67,9 +103,50 @@ exports.verifyPayment = async (req, res) => {
 
         if (expectedSignature === razorpay_signature) {
 
+            user.plan = "pro";
+
+            user.planStatus = "active";
+
+            user.planStartDate = new Date();
+
+            user.planExpiryDate = new Date(
+                Date.now() + 30 * 24 * 60 * 60 * 1000
+            );
+
+            user.emailLimit = 999999;
+
+            user.credits = 999999;
+
+            user.reminderCredits = 999999;
+
+            user.aiCredits = 999999;
+
+            user.paymentHistory.push({
+
+                paymentId: razorpay_payment_id,
+
+                orderId: razorpay_order_id,
+
+                amount: 199,
+
+                currency: "INR",
+
+                status: "Success",
+
+                paidAt: new Date()
+
+            });
+
+            await user.save();
+
+            console.log("✅ USER UPGRADED TO PRO");
+
             return res.status(200).json({
+
                 success: true,
+
                 message: "Payment verified successfully"
+
             });
 
         }
@@ -88,3 +165,5 @@ exports.verifyPayment = async (req, res) => {
 
     }
 };
+
+

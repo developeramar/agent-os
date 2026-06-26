@@ -1,73 +1,115 @@
 const mongoose = require("mongoose");
 
 const userSchema =
-new mongoose.Schema({
+    new mongoose.Schema({
 
 
-    name: {
-        type: String,
-        required: true,
-        trim: true
-    },
+        name: {
+            type: String,
+            required: true,
+            trim: true
+        },
 
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true
-    },
+        email: {
+            type: String,
+            required: true,
+            unique: true,
+            lowercase: true,
+            trim: true
+        },
 
-    password: {
-        type: String,
-        required: true
-    },
+        password: {
+            type: String,
+            required: true
+        },
 
-    plan: {
-        type: String,
-        default: "free"
-    },
+        plan: {
+            type: String,
+            enum: ["free", "pro"],
+            default: "free"
+        },
 
-    emailUsage: {
-        type: Number,
-        default: 0
-    },
+        planStatus: {
+            type: String,
+            enum: ["active", "expired"],
+            default: "active"
+        },
 
-    emailLimit: {
-        type: Number,
-        default: 20
-    },
+        planStartDate: {
+            type: Date,
+            default: null
+        },
 
-    gmailConnected: {
-        type: Boolean,
-        default: false
-    },
+        planExpiryDate: {
+            type: Date,
+            default: null
+        },
 
-    gmailEmail: {
-        type: String,
-        default: ""
-    },
+        emailUsage: {
+            type: Number,
+            default: 0
+        },
 
-    googleRefreshToken: {
-        type: String,
-        default: ""
-    },
+        emailLimit: {
+            type: Number,
+            default: 20
+        },
 
-    onboardingCompleted: {
-        type: Boolean,
-        default: false
-    },
+        credits: {
+            type: Number,
+            default: 20
+        },
 
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
+        reminderCredits: {
+            type: Number,
+            default: 20
+        },
 
-});
+        aiCredits: {
+            type: Number,
+            default: 50
+        },
+
+        gmailConnected: {
+            type: Boolean,
+            default: false
+        },
+
+        gmailEmail: {
+            type: String,
+            default: ""
+        },
+
+        googleRefreshToken: {
+            type: String,
+            default: ""
+        },
+
+        paymentHistory: [
+            {
+                paymentId: String,
+                orderId: String,
+                amount: Number,
+                currency: String,
+                status: String,
+                paidAt: Date
+            }
+        ],
+        onboardingCompleted: {
+            type: Boolean,
+            default: false
+        },
+
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+
+    });
 
 
 module.exports =
-mongoose.model(
-"User",
-userSchema
-);
+    mongoose.model(
+        "User",
+        userSchema
+    );

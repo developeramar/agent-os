@@ -4,61 +4,102 @@ import api from "../services/api";
 
 function Pricing() {
 
-const handlePayment = async () => {
+    const handlePayment = async () => {
 
-    try {
+        try {
 
-        const { data } = await api.post(
-            "/payment/create-order",
-            {
-                amount: 199
-            }
-        );
+            const { data } = await api.post(
+                "/payment/create-order",
+                {
+                    amount: 1
+                }
+            );
 
-        console.log("Razorpay Key:", import.meta.env.VITE_RAZORPAY_KEY_ID);
+            console.log("Razorpay Key:", import.meta.env.VITE_RAZORPAY_KEY_ID);
 
-        const options = {
+            const options = {
 
-            key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
 
-            amount: data.order.amount,
+                amount: data.order.amount,
 
-            currency: data.order.currency,
+                currency: data.order.currency,
 
-            name: "AgentOS",
+                name: "AgentOS",
 
-            description: "AgentOS Pro Plan",
+                description: "AgentOS Pro Plan",
 
-            order_id: data.order.id,
+                order_id: data.order.id,
 
-            handler: async function (response) {
+                handler: async function (response) {
 
-                console.log("Payment Success");
 
-                console.log(response);
 
-                alert("Payment Successful!");
+                    console.log("Payment Success");
+                    console.log(response);
 
-            },
+                    try {
 
-            theme: {
-                color: "#6366F1"
-            }
+                        const token = localStorage.getItem("token");
+                        console.log("VERIFY API CALLING...");
+                        const verify = await api.post(
 
-        };
-        console.log(options);
+                            "/payment/verify",
 
-        const razorpay = new window.Razorpay(options);
+                            response,
 
-        razorpay.open();
+                            {
 
-    } catch (error) {
+                                headers: {
 
-        console.error(error);
+                                    Authorization: token
 
-    }
+                                }
 
-};
+                            }
+
+                        );
+
+                        console.log(verify.data);
+
+                        alert("Payment Verified Successfully!");
+
+                    }
+
+                    catch (error) {
+
+                        console.error(error);
+
+                        alert("Payment Verification Failed");
+
+                    }
+
+                },
+
+                theme: {
+                    color: "#6366F1"
+                }
+
+            };
+            console.log(options);
+
+            const razorpay = new window.Razorpay(options);
+
+            razorpay.open();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                error.response?.data?.message ||
+                error.message ||
+                "Payment Error"
+            );
+
+        }
+
+    };
 
 
     const planCard = {
@@ -335,7 +376,7 @@ const handlePayment = async () => {
                             </div>
 
                             <button
-                            onClick={handlePayment}
+                                onClick={handlePayment}
                                 style={{
                                     marginTop: "30px",
                                     width: "100%",

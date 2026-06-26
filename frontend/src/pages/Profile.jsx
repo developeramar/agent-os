@@ -1,460 +1,163 @@
+
+
+// NOTE:
+// This is a starter premium profile component replacing the old UI.
+// It keeps the same imports and fetchAccount/connectGmail logic.
+// Replace your Profile.jsx with this file and adjust styles as needed.
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import api from "../services/api";
 
-function Profile() {
+export default function Profile() {
+  const navigate = useNavigate();
+  const [account, setAccount] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => { fetchAccount(); }, []);
 
-const navigate =
-    useNavigate();
-
-const [account, setAccount] =
-    useState(null);
-
-const [loading, setLoading] =
-    useState(true);
-
-useEffect(() => {
-
-    fetchAccount();
-
-}, []);
-
-async function fetchAccount() {
-
+  async function fetchAccount() {
     try {
-
-        const response =
-            await api.get(
-                "/user/my-account"
-            );
-
-        setAccount(
-            response.data.user
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
+      const res = await api.get("/user/my-account");
+      setAccount(res.data.user);
     } finally {
-
-        setLoading(false);
-
+      setLoading(false);
     }
+  }
 
-}
-
-function connectGmail() {
-
-    const user =
-        JSON.parse(
-            localStorage.getItem(
-                "user"
-            )
-        );
-
+  function connectGmail() {
+    const user = JSON.parse(localStorage.getItem("user"));
     window.location.href =
-        `https://agent-os-a7sp.onrender.com/auth/google?userId=${user.id}`;
+      `https://agent-os-a7sp.onrender.com/auth/google?userId=${user.id}`;
+  }
 
-}
-
-if (loading) {
-
+  if (loading) {
     return (
-
-        <div
-            style={{
-                background:
-                    "#0f172a",
-                minHeight:
-                    "100vh",
-                color:
-                    "white",
-                display:
-                    "flex",
-                justifyContent:
-                    "center",
-                alignItems:
-                    "center"
-            }}
-        >
-
-            <h2>
-                Loading Profile...
-            </h2>
-
-        </div>
-
+      <div style={{background:"#0f172a",color:"#fff",height:"100vh",display:"grid",placeItems:"center"}}>
+        <h2>Loading Profile...</h2>
+      </div>
     );
+  }
 
-}
+  const pro = account?.plan === "pro";
+  const emailLimit = pro ? 1000 : (account?.emailLimit ?? 20);
+  const aiCredits = pro ? 500 : (account?.aiCredits ?? 50);
+  const reminderCredits = pro ? 500 : (account?.reminderCredits ?? 20);
 
-return (
-
+  return (
     <>
+      <Header />
+      <div style={{background:"#0f172a",minHeight:"100vh",padding:30,color:"#fff"}}>
+        <div style={{maxWidth:1200,margin:"0 auto"}}>
 
-        <Header />
-
-        <div
-            style={{
-                minHeight:
-                    "100vh",
-                background:
-                    "#0f172a",
-                padding:
-                    "30px",
-                color:
-                    "white"
-            }}
-        >
-
-            <div
-                style={{
-                    maxWidth:
-                        "1200px",
-                    margin:
-                        "0 auto"
-                }}
-            >
-
-                <div
-                    style={{
-                        background:
-                            "linear-gradient(135deg,#1e293b,#111827)",
-                        padding:
-                            "35px",
-                        borderRadius:
-                            "28px",
-                        marginBottom:
-                            "25px"
-                    }}
-                >
-
-                    <div
-                        style={{
-                            display:
-                                "flex",
-                            gap:
-                                "20px",
-                            alignItems:
-                                "center",
-                            flexWrap:
-                                "wrap"
-                        }}
-                    >
-
-                        <div
-                            style={{
-                                width:
-                                    "90px",
-                                height:
-                                    "90px",
-                                borderRadius:
-                                    "50%",
-                                background:
-                                    "#2563eb",
-                                display:
-                                    "flex",
-                                justifyContent:
-                                    "center",
-                                alignItems:
-                                    "center",
-                                fontSize:
-                                    "32px",
-                                fontWeight:
-                                    "bold"
-                            }}
-                        >
-                            {
-                                account?.name?.charAt(0)
-                            }
-                        </div>
-
-                        <div>
-
-                            <h1>
-                                {
-                                    account?.name
-                                }
-                            </h1>
-
-                            <p>
-                                {
-                                    account?.email
-                                }
-                            </p>
-
-                            <p>
-                                Joined :
-                                {" "}
-                                {
-                                    new Date(
-                                        account?.createdAt
-                                    ).toLocaleDateString()
-                                }
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <div
-                    style={{
-                        display:
-                            "grid",
-                        gridTemplateColumns:
-                            "repeat(auto-fit,minmax(300px,1fr))",
-                        gap:
-                            "20px"
-                    }}
-                >
-
-                    <div style={card}>
-
-                        <h2>
-                            🚀 Account
-                        </h2>
-
-                        <p>
-                            Plan :
-                            {" "}
-                            {
-                                account?.plan
-                            }
-                        </p>
-
-                        <p>
-                            Email Usage :
-                            {" "}
-                            {
-                                account?.emailUsage
-                            }
-                            {" / "}
-                            {
-                                account?.emailLimit
-                            }
-                        </p>
-
-                        <div style={progress}>
-
-                            <div
-                                style={{
-                                    ...fill,
-                                    width:
-                                        `${(
-                                            (
-                                                account?.emailUsage || 0
-                                            ) /
-                                            (
-                                                account?.emailLimit || 20
-                                            )
-                                        ) * 100}%`
-                                }}
-                            />
-
-                        </div>
-
-                        <p
-                            style={{
-                                marginTop:
-                                    "10px",
-                                color:
-                                    "#94a3b8"
-                            }}
-                        >
-
-                            Remaining Credits :
-
-                            {" "}
-
-                            {
-                                (
-                                    account?.emailLimit || 20
-                                ) -
-                                (
-                                    account?.emailUsage || 0
-                                )
-                            }
-
-                        </p>
-
-                        <button
-                            style={button}
-                            onClick={() =>
-                                navigate(
-                                    "/pricing"
-                                )
-                            }
-                        >
-                            Upgrade Plan
-                        </button>
-
-                    </div>
-
-                    <div style={card}>
-
-                        <h2>
-                            📧 Gmail Status
-                        </h2>
-
-                        <p>
-
-                            Status :
-
-                            {" "}
-
-                            {
-                                account?.gmailConnected
-                                    ? "✅ Connected"
-                                    : "❌ Not Connected"
-                            }
-
-                        </p>
-
-                        {
-
-                            !account?.gmailConnected && (
-
-                                <button
-                                    style={button}
-                                    onClick={
-                                        connectGmail
-                                    }
-                                >
-                                    Connect Gmail
-                                </button>
-
-                            )
-
-                        }
-
-                    </div>
-
-                    <div style={card}>
-
-                        <h2>
-                            📊 Analytics
-                        </h2>
-
-                        <p>
-                            Email Intelligence Runs :
-                            {" "}
-                            {
-                                account?.emailUsage
-                            }
-                        </p>
-
-                        <p>
-                            Remaining Credits :
-                            {" "}
-                            {
-                                (
-                                    account?.emailLimit || 20
-                                ) -
-                                (
-                                    account?.emailUsage || 0
-                                )
-                            }
-                        </p>
-
-                    </div>
-
-                </div>
-
+          <div style={{
+            background:"linear-gradient(135deg,#312e81,#1e293b)",
+            borderRadius:24,padding:30,display:"flex",
+            justifyContent:"space-between",flexWrap:"wrap",gap:20}}>
+            <div style={{display:"flex",gap:20,alignItems:"center"}}>
+              <div style={{
+                width:90,height:90,borderRadius:"50%",
+                background:"#facc15",color:"#111827",
+                display:"grid",placeItems:"center",
+                fontWeight:"bold",fontSize:34}}>
+                {account?.name?.charAt(0)}
+              </div>
+              <div>
+                <h1>{account?.name}</h1>
+                <p>{account?.email}</p>
+                <p>Joined: {new Date(account?.createdAt).toLocaleDateString()}</p>
+              </div>
             </div>
 
+            <div style={{textAlign:"right"}}>
+              <div style={{
+                display:"inline-block",
+                background:pro?"#22c55e":"#334155",
+                padding:"8px 18px",
+                borderRadius:999,
+                fontWeight:700}}>
+                {pro ? "⭐ PRO MEMBER" : "FREE PLAN"}
+              </div>
+
+              <p style={{marginTop:15}}>Status: {account?.planStatus ?? "active"}</p>
+              <p>Expires: {account?.planExpiryDate ? new Date(account.planExpiryDate).toLocaleDateString() : "-"}</p>
+            </div>
+          </div>
+
+          <div style={{
+            display:"grid",
+            gridTemplateColumns:"repeat(auto-fit,minmax(320px,1fr))",
+            gap:20,
+            marginTop:25}}>
+
+            <Card title="💳 Subscription">
+              <p>Plan: <b>{account?.plan?.toUpperCase()}</b></p>
+              <p>Email Limit: {emailLimit}</p>
+              <p>Started: {account?.planStartDate ? new Date(account.planStartDate).toLocaleDateString() : "-"}</p>
+              {!pro && <button style={btn} onClick={()=>navigate("/pricing")}>Upgrade to Pro</button>}
+            </Card>
+
+            <Card title="📈 Credits">
+              <p>📧 Email Credits : {emailLimit}</p>
+              <p>🤖 AI Credits : {aiCredits}</p>
+              <p>⏰ Reminder Credits : {reminderCredits}</p>
+            </Card>
+
+            <Card title="📧 Gmail">
+              <p>{account?.gmailConnected ? "✅ Connected" : "❌ Not Connected"}</p>
+              {!account?.gmailConnected &&
+                <button style={btn} onClick={connectGmail}>Connect Gmail</button>}
+            </Card>
+
+            <Card title="📊 Usage">
+              <p>Email Used : {account?.emailUsage}</p>
+              <p>Remaining : {Math.max(0,emailLimit-(account?.emailUsage||0))}</p>
+            </Card>
+
+            <Card title="💰 Payment History">
+              {(account?.paymentHistory?.length ?? 0)===0 ? (
+                <p>No payments yet.</p>
+              ) : (
+                account.paymentHistory.map((p,i)=>(
+                  <div key={i} style={{padding:"10px 0",borderBottom:"1px solid #334155"}}>
+                    <div>₹{p.amount}</div>
+                    <div>{p.status}</div>
+                    <div>{p.paymentId}</div>
+                  </div>
+                ))
+              )}
+            </Card>
+
+            <Card title="⚙️ Account">
+              <button style={btn}>Edit Profile</button>
+              <button style={{...btn,background:"#dc2626",marginLeft:10}}>Logout</button>
+            </Card>
+
+          </div>
         </div>
-
-        <Footer />
-
+      </div>
+      <Footer />
     </>
-
-);
-
+  );
 }
 
-const card = {
+function Card({title,children}){
+  return(
+    <div style={{background:"#1e293b",padding:24,borderRadius:20,border:"1px solid #334155"}}>
+      <h2>{title}</h2>
+      {children}
+    </div>
+  )
+}
 
-
-background:
-    "#1e293b",
-
-padding:
-    "25px",
-
-borderRadius:
-    "24px",
-
-border:
-    "1px solid rgba(255,255,255,.08)"
-
-
+const btn={
+  marginTop:15,
+  background:"#2563eb",
+  color:"#fff",
+  border:"none",
+  borderRadius:12,
+  padding:"12px 18px",
+  cursor:"pointer"
 };
-
-const progress = {
-
-
-height:
-    "12px",
-
-background:
-    "#334155",
-
-borderRadius:
-    "20px",
-
-overflow:
-    "hidden",
-
-marginTop:
-    "10px"
-
-
-};
-
-const fill = {
-
-
-height:
-    "100%",
-
-background:
-    "#22c55e"
-
-
-};
-
-const button = {
-
-
-marginTop:
-    "15px",
-
-background:
-    "#2563eb",
-
-color:
-    "white",
-
-border:
-    "none",
-
-padding:
-    "12px 18px",
-
-borderRadius:
-    "12px",
-
-cursor:
-    "pointer"
-
-
-};
-
-export default Profile;
