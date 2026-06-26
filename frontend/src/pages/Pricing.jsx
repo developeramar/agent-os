@@ -4,10 +4,7 @@ import api from "../services/api";
 
 function Pricing() {
 
-
-    const handlePayment = async () => {
-
-    alert("Button Clicked");
+const handlePayment = async () => {
 
     try {
 
@@ -18,7 +15,39 @@ function Pricing() {
             }
         );
 
-        console.log(data);
+        const options = {
+
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+
+            amount: data.order.amount,
+
+            currency: data.order.currency,
+
+            name: "AgentOS",
+
+            description: "AgentOS Pro Plan",
+
+            order_id: data.order.id,
+
+            handler: async function (response) {
+
+                console.log("Payment Success");
+
+                console.log(response);
+
+                alert("Payment Successful!");
+
+            },
+
+            theme: {
+                color: "#6366F1"
+            }
+
+        };
+
+        const razorpay = new window.Razorpay(options);
+
+        razorpay.open();
 
     } catch (error) {
 
@@ -27,6 +56,7 @@ function Pricing() {
     }
 
 };
+
 
     const planCard = {
         flex: "1",
