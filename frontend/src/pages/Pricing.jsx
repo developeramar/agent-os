@@ -11,7 +11,7 @@ function Pricing() {
             const { data } = await api.post(
                 "/payment/create-order",
                 {
-                    amount: 1
+                    amount: 199
                 }
             );
 
