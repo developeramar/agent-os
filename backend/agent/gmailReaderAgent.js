@@ -30,6 +30,8 @@ async function getEmails(userId) {
         maxResults: 10
     });
 
+    console.log(JSON.stringify(response.data, null, 2));
+
     if (!response.data.messages) {
         return [];
     }
@@ -52,6 +54,11 @@ async function getEmails(userId) {
 
             const from =
                 headers.find(h => h.name === "From")?.value || "";
+
+
+            console.log("------------");
+            console.log("Subject:", subject);
+            console.log("Labels:", email.data.labelIds);
 
             const date =
                 headers.find(h => h.name === "Date")?.value || "";
