@@ -5,7 +5,7 @@ const User =
     require("../models/User");
 
 exports.googleLogin =
-    async (req, res) => {
+{/*   async (req, res) => {
 
         try {
 
@@ -66,11 +66,45 @@ exports.googleLogin =
         }
 
     };
+*/}
 
+exports.googleLogin = async (req, res) => {
+    try {
+        console.log("===== GOOGLE LOGIN =====");
+        console.log("QUERY =", req.query);
+
+        const userId = req.query.userId;
+        console.log("USER ID =", userId);
+
+        const url = oauth2Client.generateAuthUrl({
+            access_type: "offline",
+            prompt: "consent",
+            scope: [
+                "https://www.googleapis.com/auth/gmail.send",
+                "https://www.googleapis.com/auth/gmail.readonly",
+                "https://www.googleapis.com/auth/userinfo.email",
+                "openid"
+            ],
+            state: userId
+        });
+
+        console.log("GOOGLE URL =", url);
+
+        res.redirect(url);
+
+    } catch (err) {
+        console.error(err);
+    }
+};
 
 exports.googleCallback =
     async (req, res) => {
 
+        console.log("========== CALLBACK ==========");
+    console.log("QUERY =", req.query);
+    console.log("CODE =", req.query.code);
+    console.log("STATE =", req.query.state);
+    console.log("FRONTEND_URL =", process.env.FRONTEND_URL);
 
         try {
 
