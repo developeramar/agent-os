@@ -72,7 +72,7 @@ async function getEmails(
     const messages =
         response.data.messages || [];
 
-        console.log("Unread messages:", messages.length);
+    console.log("Unread messages:", messages.length);
 
     const emailDetails =
         await Promise.all(
@@ -81,9 +81,17 @@ async function getEmails(
 
             messages.map(
 
+
                 async (
                     message
                 ) => {
+
+
+                    console.log({
+                        subject,
+                        from,
+                        labels: email.data.labelIds
+                    });
 
                     const email =
                         await gmail.users.messages.get({
