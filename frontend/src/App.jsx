@@ -25,6 +25,12 @@ import Register from "./pages/Register";
 import Onboarding
   from "./pages/Onboarding";
 
+
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+import Terms from "./pages/Terms";
+import Contact from "./pages/Contact";
+
 function App() {
 
   return (
@@ -49,6 +55,46 @@ function App() {
           path="/about"
           element={<About />}
         />
+
+
+
+        <Route
+          path="/contact"
+          element={<Contact />}
+        />
+
+        <Route
+          path="/privacy"
+          element={<PrivacyPolicy />}
+        />
+
+
+        <Route
+          path="/refund"
+          element={<RefundPolicy />}
+        />
+
+
+        <Route
+          path="/terms"
+          element={<Terms />}
+        />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         <Route
           path="/onboarding"

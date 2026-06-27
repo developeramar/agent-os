@@ -44,6 +44,89 @@ function Footer() {
                     }}
                 >
 
+
+
+                     <Link
+                        to="/about"
+                        style={{
+                            color: "#94a3b8",
+                            textDecoration: "none",
+                            fontSize: "13px"
+                        }}
+                    >
+                        About
+                    </Link>
+
+                    <Link
+                        to="/contact"
+                        style={{
+                            color: "#94a3b8",
+                            textDecoration: "none",
+                            fontSize: "13px"
+                        }}
+                    >
+                        Contact Us
+                    </Link>
+
+                    <Link
+                        to="/privacy"
+                        style={{
+                            color: "#94a3b8",
+                            textDecoration: "none",
+                            fontSize: "13px"
+                        }}
+                    >
+                        Privacy Policy
+                    </Link>
+
+
+                    <Link
+                        to="/refund"
+                        style={{
+                            color: "#94a3b8",
+                            textDecoration: "none",
+                            fontSize: "13px"
+                        }}
+                    >
+                        Refund Policy
+                    </Link>
+
+
+
+
+
+                    <Link
+                        to="/terms"
+                        style={{
+                            color: "#94a3b8",
+                            textDecoration: "none",
+                            fontSize: "13px"
+                        }}
+                    >
+                        Our Terms
+                    </Link>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     <Link
                         to="/emails"
                         style={{
