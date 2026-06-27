@@ -1,161 +1,184 @@
 const { google } =
-require("googleapis");
+    require("googleapis");
 
 const User =
-require("../models/User");
+    require("../models/User");
 
 const oauth2Client =
-require("../config/googleOAuth");
+    require("../config/googleOAuth");
 
 async function getEmails(
-userId
+    userId
 ) {
 
 
-const user =
-    await User.findById(
-        userId
-    );
+    const user =
+        await User.findById(
+            userId
+        );
 
-if (!user) {
+    if (!user) {
 
-    throw new Error(
-        "User not found"
-    );
+        throw new Error(
+            "User not found"
+        );
 
-}
+    }
 
-if (
-    !user.googleRefreshToken
-) {
+    if (
+        !user.googleRefreshToken
+    ) {
 
-    throw new Error(
-        "Gmail not connected"
-    );
+        throw new Error(
+            "Gmail not connected"
+        );
 
-}
+    }
 
-oauth2Client.setCredentials({
+    oauth2Client.setCredentials({
 
-    refresh_token:
-        user.googleRefreshToken
-
-});
-
-const gmail =
-    google.gmail({
-
-        version: "v1",
-
-        auth:
-            oauth2Client
+        refresh_token:
+            user.googleRefreshToken
 
     });
 
-let response =
-    await gmail.users.messages.list({
+    const gmail =
+        google.gmail({
 
-        userId: "me",
+            version: "v1",
 
-        labelIds: ["INBOX"],
+            auth:
+                oauth2Client
 
-        q: "is:unread",
+        });
 
-        maxResults: 20
-
-    });
-
-if (
-
-    !response.data.messages ||
-
-    response.data.messages.length === 0
-
-) {
-
-    response =
+    let response =
         await gmail.users.messages.list({
 
             userId: "me",
 
             labelIds: ["INBOX"],
 
-            maxResults: 20
+            q: "category:primary is:unread newer_than:30d",
+
+            maxResults: 10
 
         });
 
-}
+    if (
 
-const messages =
-    response.data.messages || [];
+        !response.data.messages ||
 
-const emailDetails =
-    await Promise.all(
+        response.data.messages.length === 0
 
-        messages.map(
+    ) {
 
-            async (
-                message
-            ) => {
+        response =
+            await gmail.users.messages.list({
 
-                const email =
-                    await gmail.users.messages.get({
+                userId: "me",
 
-                        userId: "me",
+                labelIds: ["INBOX"],
 
-                        id:
-                            message.id
+                maxResults: 20
 
-                    });
+            });
 
-                const headers =
-                    email.data.payload.headers || [];
+    }
 
-                const subject =
-                    headers.find(
-                        h =>
-                            h.name ===
-                            "Subject"
-                    )?.value || "";
+    const messages =
+        response.data.messages || [];
 
-                const from =
-                    headers.find(
-                        h =>
-                            h.name ===
-                            "From"
-                    )?.value || "";
+    const emailDetails =
+        await Promise.all(
 
-                const date =
-                    headers.find(
-                        h =>
-                            h.name ===
-                            "Date"
-                    )?.value || "";
 
-                let body =
-                    "";
 
-                if (
-                    email.data.payload?.parts
-                ) {
+            messages.map(
 
-                    const textPart =
-                        email.data.payload.parts.find(
+                async (
+                    message
+                ) => {
 
-                            part =>
-                                part.mimeType ===
-                                "text/plain"
+                    const email =
+                        await gmail.users.messages.get({
 
-                        );
+                            userId: "me",
+
+                            id:
+                                message.id
+
+                        });
+
+                    const headers =
+                        email.data.payload.headers || [];
+
+                    const subject =
+                        headers.find(
+                            h =>
+                                h.name ===
+                                "Subject"
+                        )?.value || "";
+
+                    const from =
+                        headers.find(
+                            h =>
+                                h.name ===
+                                "From"
+                        )?.value || "";
+
+                    const date =
+                        headers.find(
+                            h =>
+                                h.name ===
+                                "Date"
+                        )?.value || "";
+
+                    let body =
+                        "";
 
                     if (
-                        textPart?.body?.data
+                        email.data.payload?.parts
+                    ) {
+
+                        const textPart =
+                            email.data.payload.parts.find(
+
+                                part =>
+                                    part.mimeType ===
+                                    "text/plain"
+
+                            );
+
+                        if (
+                            textPart?.body?.data
+                        ) {
+
+                            body =
+                                Buffer.from(
+
+                                    textPart.body.data,
+
+                                    "base64"
+
+                                ).toString(
+                                    "utf8"
+                                );
+
+                        }
+
+                    }
+
+                    else if (
+
+                        email.data.payload?.body?.data
+
                     ) {
 
                         body =
                             Buffer.from(
 
-                                textPart.body.data,
+                                email.data.payload.body.data,
 
                                 "base64"
 
@@ -165,74 +188,53 @@ const emailDetails =
 
                     }
 
+                    return {
+
+                        id:
+                            message.id,
+
+                        from,
+
+                        subject,
+
+                        date,
+
+                        receivedTime:
+                            Number(
+                                email.data.internalDate
+                            ),
+
+                        snippet:
+                            email.data.snippet ||
+
+                            "",
+
+                        body,
+
+                        unread:
+                            email.data.labelIds?.includes(
+                                "UNREAD"
+                            )
+
+                    };
+
                 }
 
-                else if (
+            )
 
-                    email.data.payload?.body?.data
+        );
 
-                ) {
+    emailDetails.sort(
 
-                    body =
-                        Buffer.from(
+        (a, b) =>
 
-                            email.data.payload.body.data,
+            b.receivedTime -
 
-                            "base64"
-
-                        ).toString(
-                            "utf8"
-                        );
-
-                }
-
-                return {
-
-                    id:
-                        message.id,
-
-                    from,
-
-                    subject,
-
-                    date,
-
-                    receivedTime:
-                        Number(
-                            email.data.internalDate
-                        ),
-
-                    snippet:
-                        email.data.snippet ||
-
-                        "",
-
-                    body,
-
-                    unread:
-                        email.data.labelIds?.includes(
-                            "UNREAD"
-                        )
-
-                };
-
-            }
-
-        )
+            a.receivedTime
 
     );
 
-emailDetails.sort(
-
-    (a, b) =>
-
-        b.receivedTime -
-
-        a.receivedTime
-
-);
-
-return emailDetails;
+    return emailDetails;
 
 
 }
@@ -240,7 +242,7 @@ return emailDetails;
 module.exports = {
 
 
-getEmails
+    getEmails
 
 
 };
