@@ -23,31 +23,34 @@ async function getEmails(userId) {
         auth: oauth2Client
     });
 
-    // Sirf Inbox + Unread mails
-    const response = await gmail.users.messages.list({
+    // Sirf Inbox ke unread conversations
+    const response = await gmail.users.threads.list({
         userId: "me",
-        labelIds: ["INBOX", "UNREAD"],
+        q: "in:inbox is:unread",
         maxResults: 10
     });
 
-    console.log(JSON.stringify(response.data, null, 2));
-
-    if (!response.data.messages) {
+    if (!response.data.threads) {
         return [];
     }
 
-    const messages = response.data.messages;
-
     const emailDetails = await Promise.all(
 
-        messages.map(async (message) => {
+        response.data.threads.map(async (thread) => {
 
-            const email = await gmail.users.messages.get({
+            const threadData = await gmail.users.threads.get({
                 userId: "me",
-                id: message.id
+                id: thread.id
             });
 
-            const headers = email.data.payload.headers || [];
+            // Conversation ka latest message
+            const email =
+                threadData.data.messages[
+                    threadData.data.messages.length - 1
+                ];
+
+            const headers =
+                email.payload.headers || [];
 
             const subject =
                 headers.find(h => h.name === "Subject")?.value || "";
@@ -55,20 +58,15 @@ async function getEmails(userId) {
             const from =
                 headers.find(h => h.name === "From")?.value || "";
 
-
-            console.log("------------");
-            console.log("Subject:", subject);
-            console.log("Labels:", email.data.labelIds);
-
             const date =
                 headers.find(h => h.name === "Date")?.value || "";
 
             let body = "";
 
-            if (email.data.payload?.parts) {
+            if (email.payload.parts) {
 
                 const textPart =
-                    email.data.payload.parts.find(
+                    email.payload.parts.find(
                         part => part.mimeType === "text/plain"
                     );
 
@@ -78,26 +76,38 @@ async function getEmails(userId) {
                         textPart.body.data,
                         "base64"
                     ).toString("utf8");
+
                 }
 
-            } else if (email.data.payload?.body?.data) {
+            } else if (email.payload.body?.data) {
 
                 body = Buffer.from(
-                    email.data.payload.body.data,
+                    email.payload.body.data,
                     "base64"
                 ).toString("utf8");
+
             }
 
             return {
 
-                id: message.id,
+                id: thread.id,
+
                 from,
+
                 subject,
+
                 date,
-                snippet: email.data.snippet || "",
+
+                snippet:
+                    email.snippet || "",
+
                 body,
-                receivedTime: Number(email.data.internalDate),
-                unread: email.data.labelIds.includes("UNREAD")
+
+                receivedTime:
+                    Number(email.internalDate),
+
+                unread:
+                    email.labelIds.includes("UNREAD")
 
             };
 
