@@ -1,113 +1,72 @@
-const { google } =
-require("googleapis");
+const { google } = require("googleapis");
+const mongoose = require("mongoose");
 
-const User =
-require("../models/User");
-
-const oauth2Client =
-require("../config/googleOAuth");
+const User = require("../models/User");
+const oauth2Client = require("../config/googleOAuth");
 
 async function sendEmail(
-
-
-userId,
-
-to,
-
-subject,
-
-body
-
-
+    userIdentifier,
+    to,
+    subject,
+    body
 ) {
 
+    let user;
 
-const user =
-    await User.findById(
-        userId
-    );
+    // Agar MongoDB ObjectId hai
+    if (mongoose.Types.ObjectId.isValid(userIdentifier)) {
 
-if (!user) {
+        user = await User.findById(userIdentifier);
 
-    throw new Error(
-        "User not found"
-    );
+    } else {
 
-}
+        // Warna email maan lo
+        user = await User.findOne({
+            email: userIdentifier
+        });
 
-if (
-    !user.googleRefreshToken
-) {
+    }
 
-    throw new Error(
-        "Gmail not connected"
-    );
+    if (!user) {
+        throw new Error("User not found");
+    }
 
-}
+    if (!user.googleRefreshToken) {
+        throw new Error("Gmail not connected");
+    }
 
-oauth2Client.setCredentials({
-
-    refresh_token:
-        user.googleRefreshToken
-
-});
-
-const gmail =
-    google.gmail({
-
-        version: "v1",
-
-        auth:
-            oauth2Client
-
+    oauth2Client.setCredentials({
+        refresh_token: user.googleRefreshToken
     });
 
-const message = [
+    const gmail = google.gmail({
+        version: "v1",
+        auth: oauth2Client
+    });
 
-    `To: ${to}`,
+    const message = [
+        `To: ${to}`,
+        `Subject: ${subject}`,
+        "",
+        body
+    ].join("\n");
 
-    `Subject: ${subject}`,
-
-    "",
-
-    body
-
-].join("\n");
-
-const encodedMessage =
-    Buffer.from(message)
-
+    const encodedMessage = Buffer.from(message)
         .toString("base64")
-
         .replace(/\+/g, "-")
-
         .replace(/\//g, "_")
-
         .replace(/=+$/, "");
 
-const result =
-    await gmail.users.messages.send({
-
+    const result = await gmail.users.messages.send({
         userId: "me",
-
         requestBody: {
-
-            raw:
-                encodedMessage
-
+            raw: encodedMessage
         }
-
     });
 
-return result.data;
-
-
+    return result.data;
 }
 
 module.exports = {
-
-
-sendEmail
-
-
+    sendEmail
 };

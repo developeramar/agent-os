@@ -1,16 +1,10 @@
 const {
     sendEmail
-} = require(
-    "../agent/gmailAgent"
-);
+} = require("../agent/gmailAgent");
 
+//console.log("GMAIL CONTROLLER LOADED");
 
-console.log(
-  "GMAIL CONTROLLER LOADED"
-);
-
-exports.sendEmail =
-async (req, res) => {
+exports.sendEmail = async (req, res) => {
 
     try {
 
@@ -20,33 +14,30 @@ async (req, res) => {
             body
         } = req.body;
 
-        const result =
-            await sendEmail(
-                to,
-                subject,
-                body
-            );
+        // 👇 JWT se aaya hua logged-in user
+        const userId = req.user.userId;
 
+        const result = await sendEmail(
+            userId,
+            to,
+            subject,
+            body
+        );
         res.status(200).json({
 
             success: true,
-
             result
 
         });
 
     } catch (error) {
 
-        console.error(
-            error
-        );
+        console.error(error);
 
         res.status(500).json({
 
             success: false,
-
-            message:
-                error.message
+            message: error.message
 
         });
 
