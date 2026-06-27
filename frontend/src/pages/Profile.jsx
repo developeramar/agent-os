@@ -27,30 +27,12 @@ export default function Profile() {
     }
   }
 
-  {/*  function connectGmail() {
+  function connectGmail() {
     const user = JSON.parse(localStorage.getItem("user"));
     window.location.href =
       `https://agent-os-a7sp.onrender.com/auth/google?userId=${user.id}`;
   }
 
-*/}
-
-  function connectGmail() {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    console.log("USER =", user);
-
-    if (!user || !user.id) {
-      alert("User ID Missing");
-      return;
-    }
-
-    const url = `https://agent-os-a7sp.onrender.com/auth/google?userId=${user.id}`;
-
-    console.log("REDIRECT URL =", url);
-
-    window.location.href = url;
-  }
 
 
 

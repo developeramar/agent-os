@@ -100,11 +100,7 @@ exports.googleLogin = async (req, res) => {
 exports.googleCallback =
     async (req, res) => {
 
-        console.log("========== CALLBACK ==========");
-        console.log("QUERY =", req.query);
-        console.log("CODE =", req.query.code);
-        console.log("STATE =", req.query.state);
-        console.log("FRONTEND_URL =", process.env.FRONTEND_URL);
+        
 
         try {
 
