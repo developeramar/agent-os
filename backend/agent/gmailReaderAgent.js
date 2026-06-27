@@ -57,37 +57,22 @@ async function getEmails(
 
             userId: "me",
 
-            labelIds: ["INBOX"],
-
-            q: "category:primary is:unread newer_than:30d",
+            q: "is:unread",
 
             maxResults: 10
 
         });
-
     if (
-
         !response.data.messages ||
-
         response.data.messages.length === 0
-
     ) {
-
-        response =
-            await gmail.users.messages.list({
-
-                userId: "me",
-
-                labelIds: ["INBOX"],
-
-                maxResults: 20
-
-            });
-
+        return [];
     }
 
     const messages =
         response.data.messages || [];
+
+        console.log("Unread messages:", messages.length);
 
     const emailDetails =
         await Promise.all(
